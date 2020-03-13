@@ -8,6 +8,7 @@ class PinsListSerializer(serializers.ModelSerializer):
     """
     descr = serializers.CharField(write_only=True, required=False)
     pin_pic_link = serializers.URLField(required=False)
+    deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
         model = Pin
@@ -18,6 +19,7 @@ class PinsListSerializer(serializers.ModelSerializer):
             'price',
             'ptype',
             'descr',
+            'deleted_flg',
         ]
 
     def create(self, validated_data):
@@ -33,6 +35,7 @@ class PinDetailSerializer(serializers.ModelSerializer):
     ptype = serializers.CharField(read_only=True)
     descr = serializers.CharField(required=False)
     pin_pic_link = serializers.URLField(required=False)
+    deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
         model = Pin
@@ -44,6 +47,7 @@ class PinDetailSerializer(serializers.ModelSerializer):
             'price',
             'ptype',
             'created_dt',
+            'deleted_flg',
         ]
 
     def update(self, instance: Pin, validated_data):

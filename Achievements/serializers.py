@@ -8,6 +8,7 @@ class AchievementsListSerializer(serializers.ModelSerializer):
     """
     descr = serializers.CharField(required=False, write_only=True)
     pic_link = serializers.CharField(required=False)
+    deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
         model = Achievement
@@ -16,6 +17,7 @@ class AchievementsListSerializer(serializers.ModelSerializer):
             'name',
             'descr',
             'pic_link',
+            'deleted_flg',
         ]
 
     def create(self, validated_data):
@@ -29,6 +31,7 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     """
     descr = serializers.CharField(required=False)
     pic_link = serializers.CharField(required=False)
+    deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
         model = Achievement
@@ -36,7 +39,8 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'descr',
-            'pic_link'
+            'pic_link',
+            'deleted_flg',
         ]
 
     def update(self, instance: Achievement, validated_data):

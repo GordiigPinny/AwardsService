@@ -5,8 +5,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from Pins.models import Pin
 from Pins.serializers import PinsListSerializer, PinDetailSerializer
 from Pins.permissions import IsAuthenticated
-from Pins.utils import get_token_from_request
 from ApiRequesters.Auth.AuthRequester import AuthRequester
+from ApiRequesters.utils import get_token_from_request
 from ApiRequesters.exceptions import BaseApiRequestError
 
 
