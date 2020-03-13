@@ -15,7 +15,7 @@ class Pin(models.Model):
     descr = models.CharField(max_length=1024, null=True, blank=True)
     ptype = models.CharField(choices=PIN_TYPE_CHOICES, max_length=2, null=False)
     price = models.IntegerField(null=False, blank=False)
-    img_link = models.URLField(null=True, blank=True)
+    pin_pic_link = models.URLField(null=True, blank=True)
     created_dt = models.DateTimeField(auto_now_add=True)
     deleted_flg = models.BooleanField(default=False, null=False)
 
