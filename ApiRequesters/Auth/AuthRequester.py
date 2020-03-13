@@ -26,7 +26,7 @@ class AuthRequester(BaseApiRequester):
         user_json = self._get_json_from_response(response)
         return response, user_json
 
-    def is_moderator(self, token: str) -> bool:
+    def is_moderator(self, token: str) -> Tuple[requests.Response, bool]:
         """
         Проверка по токену, является ли юзер модератором
         @param token: Токен
@@ -34,11 +34,11 @@ class AuthRequester(BaseApiRequester):
         """
         response, user_json = self.get_user_info(token)
         try:
-            return user_json['is_moderator']
+            return response, user_json['is_moderator']
         except KeyError:
             raise UnexpectedResponse(response=response, message='В джсоне юзера отсутствует поле is_moderator')
 
-    def is_superuser(self, token: str) -> bool:
+    def is_superuser(self, token: str) -> Tuple[requests.Response, bool]:
         """
         Проверка по токену, является ли юзер суперюзером
         @param token: Токен
@@ -46,7 +46,15 @@ class AuthRequester(BaseApiRequester):
         """
         response, user_json = self.get_user_info(token)
         try:
-            return user_json['is_superuser']
+            return response, user_json['is_superuser']
         except KeyError:
             raise UnexpectedResponse(response=response, message='В джсоне юзера отсутствует поле is_superuser')
 
+    def is_token_valid(self, token: str) -> Tuple[requests.Response, bool]:
+        """
+        Проверка валидности токена, так же работает как IsAuthenticated
+        @param token: Токен
+        @return: True, если токен валиден
+        """
+        response = self.post('api-verify-token/', data={'token': token})
+        return response, self._validate_return_code(response, 200, throw=False)
