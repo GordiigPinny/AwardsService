@@ -21,15 +21,20 @@ class BaseApiRequester:
         self.api_url = self.host + 'api/'
         self.token_prefix = 'Bearer'
 
-    def _validate_return_code(self, response: requests.Response, expected_code: int) -> None:
+    def _validate_return_code(self, response: requests.Response, expected_code: int, throw: bool = True) -> bool:
         """
         Валидация кода возврата с ожидаемым
         @param response: Объект-ответ сервера
         @param expected_code: Ожидаемый код возврата
-        @return: None
+        @param throw: Кидать ли эксепшн, если код не равен ожидаемому
+        @return: True, если код возврата равен ожидаемому
         """
         if response.status_code != expected_code:
-            raise UnexpectedResponse(response)
+            if throw:
+                raise UnexpectedResponse(response)
+            else:
+                return False
+        return True
 
     def _get_json_from_response(self, response: requests.Response, throw: bool = True) -> Union[Dict, List, str]:
         """
