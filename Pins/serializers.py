@@ -6,7 +6,8 @@ class PinsListSerializer(serializers.ModelSerializer):
     """
     Сериализатор спискового представления пинов
     """
-    descr = serializers.CharField(write_only=True)
+    descr = serializers.CharField(write_only=True, required=False)
+    pin_pic_link = serializers.URLField(required=False)
 
     class Meta:
         model = Pin
@@ -30,6 +31,8 @@ class PinDetailSerializer(serializers.ModelSerializer):
     """
     created_dt = serializers.DateTimeField(read_only=True)
     ptype = serializers.CharField(read_only=True)
+    descr = serializers.CharField(required=False)
+    pin_pic_link = serializers.URLField(required=False)
 
     class Meta:
         model = Pin
