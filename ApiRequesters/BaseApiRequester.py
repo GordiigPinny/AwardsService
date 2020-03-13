@@ -1,10 +1,6 @@
 import requests
-from typing import Dict, Any, Union, Callable, List
-
-
-class RequestError(Exception):
-    def __init__(self, message: str = 'Request error'):
-        self.message = message
+from typing import Dict, Any, Union, Callable, List, Tuple
+from ApiRequesters.exceptions import RequestError, UnexpectedResponse, JsonDecodeError
 
 
 class BaseApiRequester:
@@ -23,6 +19,40 @@ class BaseApiRequester:
     def __init__(self):
         self.host = 'http://127.0.0.1:8000/'
         self.api_url = self.host + 'api/'
+        self.token_prefix = 'Bearer'
+
+    def _validate_return_code(self, response: requests.Response, expected_code: int) -> None:
+        """
+        Валидация кода возврата с ожидаемым
+        @param response: Объект-ответ сервера
+        @param expected_code: Ожидаемый код возврата
+        @return: None
+        """
+        if response.status_code != expected_code:
+            raise UnexpectedResponse(response)
+
+    def _get_json_from_response(self, response: requests.Response, throw: bool = True) -> Union[Dict, List, str]:
+        """
+        Получение джсона из ответа
+        @param response: Объект-ответ сервера
+        @param throw: Кидать ли эксепшн, если в ответе не джсон
+        @return: Джсон, либо текст ответа, если throw = False
+        """
+        try:
+            return response.json()
+        except ValueError:
+            if throw:
+                raise JsonDecodeError(body_text=response.text)
+            else:
+                return response.text
+
+    def _create_auth_header_tuple(self, token: str) -> Tuple[str, str]:
+        """
+        Возврат кортежа-хэдера авторизации
+        @param token: Токен
+        @return: Кортеж вида ('Authorization': <token>)
+        """
+        return 'Authorization', f'{self.token_prefix} {token}'
 
     def _make_request(self, method: Callable, uri, headers, params, data) -> requests.Response:
         """
