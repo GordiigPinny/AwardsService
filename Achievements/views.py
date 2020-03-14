@@ -51,8 +51,7 @@ class AchievementDetailView(APIView):
             return False
 
     def get(self, request: Request, pk):
-        with_deleted = False if not self.is_superuser(request) \
-            else request.query_params.get('show_deleted', False)
+        with_deleted = self.is_superuser(request)
         try:
             ach = Achievement.objects.get(pk=pk) if with_deleted \
                 else Achievement.objects.get(pk=pk, deleted_flg=False)
