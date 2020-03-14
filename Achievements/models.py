@@ -8,6 +8,7 @@ class Achievement(models.Model):
     name = models.CharField(max_length=128, null=False, blank=False)
     descr = models.CharField(max_length=512, null=True, blank=True)
     pic_link = models.URLField(null=True, blank=True)
+    created_dt = models.DateTimeField(auto_now_add=True)
     deleted_flg = models.BooleanField(default=False)
 
     def __str__(self):
