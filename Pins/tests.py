@@ -72,3 +72,69 @@ class PinsListTestCase(LocalBaseTestCase):
     def testPost400_WrongJSON(self):
         _ = self.post_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400,
                                                 auth=False, token=self.super_token)
+
+
+class PinDetailTestCase(LocalBaseTestCase):
+    """
+    Тесты детального представления пинов
+    """
+    def setUp(self):
+        super().setUp()
+        self.old_path = self.path
+        self.path_404 = self.path + '1000000/'
+        self.path += f'{self.ppin.id}/'
+        self.data_202 = {
+            'name': 'Post',
+            'ptype': Pin.USER_PIN,
+            'price': 100,
+        }
+        self.data_400 = {
+            'name': 'nea',
+        }
+
+    def testGet200_Ok(self):
+        response = self.get_response_and_check_status(url=self.path, auth=False, token=self.user_token)
+        self.fields_test(response, ['id', 'name', 'descr', 'ptype', 'price', 'created_dt', 'pin_pic_link'])
+        self.assertEqual(response['id'], self.ppin.id)
+
+    def testGet200_DeletedSuperuser(self):
+        dpin = Pin.objects.create(name='ppin', ptype=Pin.PLACE_PIN, descr='Descr', price=100, deleted_flg=True)
+        _ = self.get_response_and_check_status(url=self.old_path+f'{dpin.id}/', auth=False, token=self.super_token)
+
+    def testGet403_DeletedNoSuperuser(self):
+        dpin = Pin.objects.create(name='ppin', ptype=Pin.PLACE_PIN, descr='Descr', price=100, deleted_flg=True)
+        _ = self.get_response_and_check_status(url=self.old_path+f'{dpin.id}/', expected_status_code=404,
+                                               auth=False, token=self.user_token)
+
+    def testGet404_WrongId(self):
+        _ = self.get_response_and_check_status(url=self.path_404, expected_status_code=404, auth=False,
+                                               token=self.user_token)
+
+    def testPatch202_Ok(self):
+        response = self.patch_response_and_check_status(url=self.path, data=self.data_202, auth=False,
+                                                        token=self.super_token)
+        self.assertEqual(response['id'], self.ppin.id)
+        self.assertEqual(response['name'], self.data_202['name'])
+
+    def testPatch403_NoSuperuser(self):
+        _ = self.patch_response_and_check_status(url=self.path, data=self.data_202, expected_status_code=403,
+                                                 auth=False, token=self.user_token)
+
+    def testPatch404_WrongId(self):
+        _ = self.patch_response_and_check_status(url=self.path_404, data=self.data_202, expected_status_code=404,
+                                                 auth=False, token=self.super_token)
+
+    def testPatch400_WrongJSON(self):
+        _ = self.patch_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400,
+                                                 auth=False, token=self.super_token)
+
+    def testDelete204_Ok(self):
+        _ = self.delete_response_and_check_status(url=self.path, auth=False, token=self.super_token)
+
+    def testDelete403_NoSuperuser(self):
+        _ = self.delete_response_and_check_status(url=self.path, expected_status_code=403, auth=False,
+                                                  token=self.user_token)
+
+    def testDelete404_WrongId(self):
+        _ = self.delete_response_and_check_status(url=self.path_404, expected_status_code=404,
+                                                  auth=False, token=self.super_token)
