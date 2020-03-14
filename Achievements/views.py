@@ -2,19 +2,19 @@ from rest_framework import status
 from rest_framework.views import APIView, Response, Request
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.pagination import LimitOffsetPagination
-from Pins.models import Pin
-from Pins.serializers import PinsListSerializer, PinDetailSerializer
+from Achievements.models import Achievement
+from Achievements.serializers import AchievementsListSerializer, AchievementDetailSerializer
+from Achievements.permissions import IsAuthenticated
 from ApiRequesters.Auth.AuthRequester import AuthRequester
 from ApiRequesters.utils import get_token_from_request
-from ApiRequesters.Auth.permissions import IsAuthenticated
 from ApiRequesters.exceptions import BaseApiRequestError
 
 
-class PinListView(ListCreateAPIView):
+class AchievementsListView(ListCreateAPIView):
     """
-    Вьюха для возврата списка пинов
+    Вьюха для спискового представления ачивок
     """
-    serializer_class = PinsListSerializer
+    serializer_class = AchievementsListSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthenticated, )
 
@@ -26,25 +26,20 @@ class PinListView(ListCreateAPIView):
             return False
 
     def get_queryset(self):
-        ptype = self.request.query_params.get('ptype', None)
         with_deleted = False if not self.is_superuser(self.request) \
             else self.request.query_params.get('show_deleted', False)
-        if ptype is None:
-            return Pin.objects.all() if with_deleted \
-                else Pin.objects.filter(deleted_flg=False)
-        else:
-            return Pin.objects.filter(ptype=ptype) if with_deleted \
-                else Pin.objects.filter(ptype=ptype, deleted_flg=False)
+        return Achievement.objects.all() if with_deleted \
+            else Achievement.objects.filter(deleted_flg=False)
 
-    def create(self, request: Request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         if not self.is_superuser(request):
-            return Response({'error', 'Only admins can post pins'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': 'Only admin can create achievements'}, status=status.HTTP_403_FORBIDDEN)
         return super().create(request, args, kwargs)
 
 
-class PinDetailView(APIView):
+class AchievementDetailView(APIView):
     """
-    Вьюха для возврата пина
+    Вьюха для детального представления ачивки
     """
     permission_classes = (IsAuthenticated, )
 
@@ -58,21 +53,21 @@ class PinDetailView(APIView):
     def get(self, request: Request, pk):
         with_deleted = self.is_superuser(request)
         try:
-            pin = Pin.objects.get(pk=pk) if with_deleted \
-                else Pin.objects.get(pk=pk, deleted_flg=False)
-        except Pin.DoesNotExist:
+            ach = Achievement.objects.get(pk=pk) if with_deleted \
+                else Achievement.objects.get(pk=pk, deleted_flg=False)
+        except Achievement.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = PinDetailSerializer(instance=pin)
+        serializer = AchievementDetailSerializer(instance=ach)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request: Request, pk):
         if not self.is_superuser(request):
-            return Response({'error', 'Only admin can modify pins'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': 'Only admin can modify achievements'}, status=status.HTTP_403_FORBIDDEN)
         try:
-            pin = Pin.objects.get(pk=pk, deleted_flg=False)
-        except Pin.DoesNotExist:
+            ach = Achievement.objects.get(pk=pk, deleted_flg=False)
+        except Achievement.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = PinDetailSerializer(instance=pin, data=request.data)
+        serializer = AchievementDetailSerializer(instance=ach, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
@@ -80,11 +75,11 @@ class PinDetailView(APIView):
 
     def delete(self, request: Request, pk):
         if not self.is_superuser(request):
-            return Response({'error', 'Only admin can modify pins'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': 'Only admin can modify achievements'}, status=status.HTTP_403_FORBIDDEN)
         try:
-            pin = Pin.objects.get(pk=pk, deleted_flg=False)
-        except Pin.DoesNotExist:
+            ach = Achievement.objects.get(pk=pk, deleted_flg=False)
+        except Achievement.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        pin.deleted_flg = True
-        pin.save()
+        ach.deleted_flg = True
+        ach.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
