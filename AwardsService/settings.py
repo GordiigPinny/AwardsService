@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import sys
 import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -140,9 +141,11 @@ MEDIA_URL = '/media/'
 
 ENV_FILE_NAME = 'prod.env'
 
+TESTING = sys.argv[1:2] == ['test']
+
 try:
     from .settings_local import *
 except ImportError:
     pass
 
-ENV = dotenv.load_dotenv(ENV_FILE_NAME)
+ENV = dotenv.main.dotenv_values(ENV_FILE_NAME)

@@ -32,6 +32,7 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     descr = serializers.CharField(required=False)
     pic_link = serializers.CharField(required=False)
     deleted_flg = serializers.BooleanField(required=False)
+    created_dt = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Achievement
@@ -41,6 +42,7 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
             'descr',
             'pic_link',
             'deleted_flg',
+            'created_dt'
         ]
 
     def update(self, instance: Achievement, validated_data):

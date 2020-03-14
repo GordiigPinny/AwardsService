@@ -8,8 +8,8 @@ class _BaseAuthPermission(BasePermission):
     """
     def _get_token_from_request(self, request):
         try:
-            return request.META.get['HTTP_AUTHORIZATION'][7:]
-        except KeyError:
+            return request.META['HTTP_AUTHORIZATION'][7:]
+        except (KeyError, IndexError):
             return None
 
 

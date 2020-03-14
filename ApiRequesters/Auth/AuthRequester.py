@@ -1,60 +1,9 @@
-import requests
-from typing import Tuple
 from django.conf import settings
-from ApiRequesters.BaseApiRequester import BaseApiRequester
-from ApiRequesters.exceptions import JsonDecodeError, UnexpectedResponse, RequestError
+from ._AuthRequester import AuthRequester as __a, MockAuthRequester as __m
 
-
-class AuthRequester(BaseApiRequester):
-    """
-    Реквестер к сервису авторизации
-    """
-    def __init__(self):
-        super().__init__()
-        self.host = settings.ENV['AUTH_HOST']
-
-    def get_user_info(self, token: str) -> Tuple[requests.Response, dict]:
-        """
-        Получение инфы о юзере по токену (/api/user_info/)
-        @param token: Токен
-        @return: Джсон-описание юзера
-        """
-        auth_tuple = self._create_auth_header_tuple(token)
-        auth_header = {auth_tuple[0]: auth_tuple[1]}
-        response = self.get('user_info/', headers=auth_header)
-        self._validate_return_code(response, 200)
-        user_json = self._get_json_from_response(response)
-        return response, user_json
-
-    def is_moderator(self, token: str) -> Tuple[requests.Response, bool]:
-        """
-        Проверка по токену, является ли юзер модератором
-        @param token: Токен
-        @return: True, если модератор
-        """
-        response, user_json = self.get_user_info(token)
-        try:
-            return response, user_json['is_moderator']
-        except KeyError:
-            raise UnexpectedResponse(response=response, message='В джсоне юзера отсутствует поле is_moderator')
-
-    def is_superuser(self, token: str) -> Tuple[requests.Response, bool]:
-        """
-        Проверка по токену, является ли юзер суперюзером
-        @param token: Токен
-        @return: True, если модератор
-        """
-        response, user_json = self.get_user_info(token)
-        try:
-            return response, user_json['is_superuser']
-        except KeyError:
-            raise UnexpectedResponse(response=response, message='В джсоне юзера отсутствует поле is_superuser')
-
-    def is_token_valid(self, token: str) -> Tuple[requests.Response, bool]:
-        """
-        Проверка валидности токена, так же работает как IsAuthenticated
-        @param token: Токен
-        @return: True, если токен валиден
-        """
-        response = self.post('api-verify-token/', data={'token': token})
-        return response, self._validate_return_code(response, 200, throw=False)
+__tst = settings.TESTING
+try:
+    __ar = settings.ALLOW_REQUESTS
+    AuthRequester = __a if __ar and not __tst else __m
+except AttributeError:
+    AuthRequester = __a if not __tst else __m

@@ -4,9 +4,9 @@ from rest_framework.generics import ListCreateAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from Pins.models import Pin
 from Pins.serializers import PinsListSerializer, PinDetailSerializer
-from Pins.permissions import IsAuthenticated
 from ApiRequesters.Auth.AuthRequester import AuthRequester
 from ApiRequesters.utils import get_token_from_request
+from ApiRequesters.Auth.permissions import IsAuthenticated
 from ApiRequesters.exceptions import BaseApiRequestError
 
 
@@ -56,8 +56,7 @@ class PinDetailView(APIView):
             return False
 
     def get(self, request: Request, pk):
-        with_deleted = False if not self.is_superuser(request) \
-            else request.query_params.get('show_deleted', False)
+        with_deleted = self.is_superuser(request)
         try:
             pin = Pin.objects.get(pk=pk) if with_deleted \
                 else Pin.objects.get(pk=pk, deleted_flg=False)
