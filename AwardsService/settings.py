@@ -148,4 +148,4 @@ try:
 except ImportError:
     pass
 
-ENV = dotenv.load_dotenv(ENV_FILE_NAME)
+ENV = dotenv.main.dotenv_values(ENV_FILE_NAME)
