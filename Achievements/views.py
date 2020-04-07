@@ -12,7 +12,7 @@ class AchievementsListView(ListCreateAPIView):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        with_deleted = self.request.query_params.get('show_deleted', 'False')
+        with_deleted = self.request.query_params.get('with_deleted', 'False')
         with_deleted = with_deleted.lower() == 'true'
         return Achievement.objects.with_deleted().all() if with_deleted else Achievement.objects.all()
 
