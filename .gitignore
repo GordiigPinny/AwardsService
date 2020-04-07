@@ -136,7 +136,7 @@ dmypy.json
 *.sqlite3
 
 # Submodules
-ApiRequesters
+#ApiRequesters
 
 # Specific files
 settings_local.py
