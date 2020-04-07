@@ -7,6 +7,7 @@ class PinsListSerializer(serializers.ModelSerializer):
     Сериализатор спискового представления пинов
     """
     name = serializers.CharField(required=True, allow_blank=False, allow_null=False)
+    price = serializers.IntegerField(min_value=0, required=True)
     descr = serializers.CharField(write_only=True, required=False, allow_blank=True, allow_null=False, default='')
     pin_pic_link = serializers.URLField(required=False, allow_blank=True, allow_null=False, default='')
     deleted_flg = serializers.BooleanField(required=False)
@@ -33,6 +34,7 @@ class PinDetailSerializer(serializers.ModelSerializer):
     Сериалищатор детального представления пина
     """
     name = serializers.CharField(required=False, allow_blank=False, allow_null=False)
+    price = serializers.IntegerField(min_value=0, required=False)
     created_dt = serializers.DateTimeField(read_only=True)
     ptype = serializers.CharField(read_only=True)
     descr = serializers.CharField(required=False, allow_blank=True, allow_null=False)
