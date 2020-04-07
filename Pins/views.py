@@ -13,7 +13,7 @@ class PinListView(ListCreateAPIView):
 
     def get_queryset(self):
         ptype = self.request.query_params.get('ptype', None)
-        with_deleted = self.request.query_params.get('show_deleted', 'False')
+        with_deleted = self.request.query_params.get('with_deleted', 'False')
         with_deleted = with_deleted.lower() == 'true'
         all_ = Pin.objects.all() if with_deleted else Pin.objects.with_deleted().all()
         if ptype is None:
