@@ -34,7 +34,7 @@ class AchievementsListTestCase(LocalBaseTestCase):
 
     def testGet200_Deleted(self):
         achd = Achievement.objects.create(name='Name', descr='descr', deleted_flg=True)
-        response = self.get_response_and_check_status(url=self.path+'?show_deleted=True', auth=False)
+        response = self.get_response_and_check_status(url=self.path+'?with_deleted=True', auth=False)
         self.assertEqual(len(response), 2, msg='Deleted instances are not in response')
 
     def testPost201_Ok(self):
