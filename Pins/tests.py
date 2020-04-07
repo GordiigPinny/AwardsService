@@ -73,6 +73,7 @@ class PinDetailTestCase(LocalBaseTestCase):
         }
         self.data_400 = {
             'name': 'nea',
+            'price': -1,
         }
 
     def testGet200_Ok(self):
