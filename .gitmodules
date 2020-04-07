@@ -1,0 +1,3 @@
+[submodule "ApiRequester"]
+    path = ApiRequester
+    url = https://github.com/GordiigPinny/Api-Requester.git
