@@ -6,8 +6,9 @@ class AchievementsListSerializer(serializers.ModelSerializer):
     """
     Сериализатор спискового представления ачивок
     """
-    descr = serializers.CharField(required=False, write_only=True)
-    pic_link = serializers.CharField(required=False)
+    name = serializers.CharField(required=True, allow_blank=False, allow_null=False)
+    descr = serializers.CharField(required=False, default='', write_only=True)
+    pic_link = serializers.URLField(required=False, default='')
     deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
@@ -29,8 +30,9 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     """
     Сериализатор детального представления ачивки
     """
-    descr = serializers.CharField(required=False)
-    pic_link = serializers.CharField(required=False)
+    name = serializers.CharField(required=False, allow_blank=False, allow_null=False)
+    descr = serializers.CharField(required=False, allow_blank=True, allow_null=False)
+    pic_link = serializers.URLField(required=False, allow_blank=True, allow_null=False)
     deleted_flg = serializers.BooleanField(required=False)
     created_dt = serializers.DateTimeField(read_only=True)
 

@@ -57,7 +57,7 @@ class AchievementDetailTestCase(LocalBaseTestCase):
             'name': 'PATCH',
         }
         self.data_400 = {
-
+            'name': None,
         }
 
     def testGet200_Ok(self):
