@@ -8,6 +8,7 @@ class PinsListSerializer(serializers.ModelSerializer):
     """
     name = serializers.CharField(required=True, allow_blank=False, allow_null=False)
     price = serializers.IntegerField(min_value=0, required=True)
+    ptype = serializers.ChoiceField(choices=Pin.PIN_TYPE_CHOICES, required=True)
     descr = serializers.CharField(write_only=True, required=False, allow_blank=True, allow_null=False, default='')
     pin_pic_link = serializers.URLField(required=False, allow_blank=True, allow_null=False, default='')
     deleted_flg = serializers.BooleanField(required=False)

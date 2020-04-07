@@ -26,8 +26,13 @@ class PinsListTestCase(LocalBaseTestCase):
             'ptype': Pin.USER_PIN,
             'price': 100,
         }
-        self.data_400 = {
+        self.data_400_1 = {
             'name': 'nea',
+        }
+        self.data_400_2 = {
+            'name': 'nea',
+            'price': 1,
+            'ptype': 'ne',
         }
 
     def testGet200_Ok(self):
@@ -54,7 +59,12 @@ class PinsListTestCase(LocalBaseTestCase):
         _ = self.post_response_and_check_status(url=self.path, data=self.data_201, auth=False)
 
     def testPost400_WrongJSON(self):
-        _ = self.post_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400, auth=False)
+        _ = self.post_response_and_check_status(url=self.path, data=self.data_400_1, expected_status_code=400,
+                                                auth=False)
+
+    def testPost400_WrongPType(self):
+        _ = self.post_response_and_check_status(url=self.path, data=self.data_400_2, expected_status_code=400,
+                                                auth=False)
 
 
 class PinDetailTestCase(LocalBaseTestCase):
