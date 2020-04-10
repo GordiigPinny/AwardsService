@@ -2,12 +2,14 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.pagination import LimitOffsetPagination
 from Achievements.models import Achievement
 from Achievements.serializers import AchievementsListSerializer, AchievementDetailSerializer
+from AwardsService.permissions import WriteOnlyBySuperuser
 
 
 class AchievementsListView(ListCreateAPIView):
     """
     Вьюха для спискового представления ачивок
     """
+    permission_classes = (WriteOnlyBySuperuser, )
     serializer_class = AchievementsListSerializer
     pagination_class = LimitOffsetPagination
 
@@ -19,8 +21,9 @@ class AchievementsListView(ListCreateAPIView):
 
 class AchievementDetailView(RetrieveUpdateDestroyAPIView):
     """
-   Вьюха для детального представления ачивки
-   """
+    Вьюха для детального представления ачивки
+    """
+    permission_classes = (WriteOnlyBySuperuser,)
     serializer_class = AchievementDetailSerializer
 
     def get_queryset(self):

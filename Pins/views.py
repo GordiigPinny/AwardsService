@@ -2,12 +2,14 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.pagination import LimitOffsetPagination
 from Pins.models import Pin
 from Pins.serializers import PinsListSerializer, PinDetailSerializer
+from AwardsService.permissions import WriteOnlyBySuperuser
 
 
 class PinListView(ListCreateAPIView):
     """
     Вьюха для возврата списка пинов
     """
+    permission_classes = (WriteOnlyBySuperuser, )
     serializer_class = PinsListSerializer
     pagination_class = LimitOffsetPagination
 
@@ -26,6 +28,7 @@ class PinDetailView(RetrieveUpdateDestroyAPIView):
     """
     Вьюха для возврата пина
     """
+    permission_classes = (WriteOnlyBySuperuser, )
     serializer_class = PinDetailSerializer
 
     def get_queryset(self):
