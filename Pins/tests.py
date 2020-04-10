@@ -59,6 +59,13 @@ class PinsListTestCase(LocalBaseTestCase):
         self.token.set_role(self.token.ROLES.SUPERUSER)
         _ = self.post_response_and_check_status(url=self.path, data=self.data_201)
 
+    def testPost201_ErrorOnMedia(self):
+        self.data_201['pic_id'] = 100
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        self.token.set_error(self.token.ERRORS_KEYS.MEDIA, self.token.ERRORS.ERROR_TOKEN)
+        response = self.post_response_and_check_status(url=self.path, data=self.data_201)
+        self.assertEqual(response['pic_id'], 1, msg='Wrong default pic_id value returned')
+
     def testPost401_403_NotAdminPosting(self):
         _ = self.post_response_and_check_status(url=self.path, data=self.data_201, expected_status_code=[401, 403])
 
@@ -111,6 +118,13 @@ class PinDetailTestCase(LocalBaseTestCase):
         response = self.patch_response_and_check_status(url=self.path, data=self.data_202)
         self.assertEqual(response['id'], self.ppin.id)
         self.assertEqual(response['name'], self.data_202['name'])
+
+    def testPatch202_ErrorOnMedia(self):
+        self.data_202['pic_id'] = 100
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        self.token.set_error(self.token.ERRORS_KEYS.MEDIA, self.token.ERRORS.ERROR_TOKEN)
+        response = self.patch_response_and_check_status(url=self.path, data=self.data_202)
+        self.assertEqual(response['pic_id'], 1, msg='Wrong default pic_id value returned')
 
     def testPatch401_403_NotAdminPatching(self):
         _ = self.patch_response_and_check_status(url=self.path, data=self.data_202, expected_status_code=[401, 403])

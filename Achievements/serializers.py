@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from Achievements.models import Achievement
+from ApiRequesters.Media.MediaRequester import MediaRequester
+from ApiRequesters.utils import get_token_from_request
+from ApiRequesters.exceptions import BaseApiRequestError
 
 
 class AchievementsListSerializer(serializers.ModelSerializer):
@@ -20,6 +23,15 @@ class AchievementsListSerializer(serializers.ModelSerializer):
             'pic_id',
             'deleted_flg',
         ]
+
+    def validate_pic_id(self, value: int):
+        r = MediaRequester()
+        token = get_token_from_request(self.context['request'])
+        try:
+            _ = r.get_image_info(value, token)
+            return value
+        except BaseApiRequestError:
+            return 1
 
     def create(self, validated_data):
         new = Achievement.objects.create(**validated_data)
@@ -46,6 +58,15 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
             'deleted_flg',
             'created_dt'
         ]
+
+    def validate_pic_id(self, value: int):
+        r = MediaRequester()
+        token = get_token_from_request(self.context['request'])
+        try:
+            _ = r.get_image_info(value, token)
+            return value
+        except BaseApiRequestError:
+            return 1
 
     def update(self, instance: Achievement, validated_data):
         for attr, val in validated_data.items():

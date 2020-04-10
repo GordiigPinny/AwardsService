@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from Pins.models import Pin
+from ApiRequesters.Media.MediaRequester import MediaRequester
+from ApiRequesters.utils import get_token_from_request
+from ApiRequesters.exceptions import BaseApiRequestError
 
 
 class PinsListSerializer(serializers.ModelSerializer):
@@ -24,6 +27,15 @@ class PinsListSerializer(serializers.ModelSerializer):
             'descr',
             'deleted_flg',
         ]
+
+    def validate_pic_id(self, value: int):
+        r = MediaRequester()
+        token = get_token_from_request(self.context['request'])
+        try:
+            _ = r.get_image_info(value, token)
+            return value
+        except BaseApiRequestError:
+            return 1
 
     def create(self, validated_data):
         new = Pin.objects.create(**validated_data)
@@ -54,6 +66,15 @@ class PinDetailSerializer(serializers.ModelSerializer):
             'created_dt',
             'deleted_flg',
         ]
+
+    def validate_pic_id(self, value: int):
+        r = MediaRequester()
+        token = get_token_from_request(self.context['request'])
+        try:
+            _ = r.get_image_info(value, token)
+            return value
+        except BaseApiRequestError:
+            return 1
 
     def update(self, instance: Pin, validated_data):
         for attr, val in validated_data.items():
