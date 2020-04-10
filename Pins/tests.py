@@ -37,7 +37,7 @@ class PinsListTestCase(LocalBaseTestCase):
 
     def testGet200_Ok(self):
         response = self.get_response_and_check_status(url=self.path, auth=False, token=self.user_token)
-        self.fields_test(response, ['id', 'name', 'ptype', 'pin_pic_link', 'price'])
+        self.fields_test(response, ['id', 'name', 'ptype', 'pic_id', 'price'])
         self.list_test(response, Pin)
 
     def testGet200_WithDeletedFlag(self):
@@ -88,7 +88,7 @@ class PinDetailTestCase(LocalBaseTestCase):
 
     def testGet200_Ok(self):
         response = self.get_response_and_check_status(url=self.path, auth=False, token=self.user_token)
-        self.fields_test(response, ['id', 'name', 'descr', 'ptype', 'price', 'created_dt', 'pin_pic_link'])
+        self.fields_test(response, ['id', 'name', 'descr', 'ptype', 'price', 'created_dt', 'pic_id'])
         self.assertEqual(response['id'], self.ppin.id)
 
     def testGet200_Deleted(self):

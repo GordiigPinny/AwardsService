@@ -8,7 +8,7 @@ class AchievementsListSerializer(serializers.ModelSerializer):
     """
     name = serializers.CharField(required=True, allow_blank=False, allow_null=False)
     descr = serializers.CharField(required=False, default='', write_only=True)
-    pic_link = serializers.URLField(required=False, default='')
+    pic_id = serializers.IntegerField(min_value=1, allow_null=False, required=False, default=1)
     deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
@@ -17,7 +17,7 @@ class AchievementsListSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'descr',
-            'pic_link',
+            'pic_id',
             'deleted_flg',
         ]
 
@@ -32,7 +32,7 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     """
     name = serializers.CharField(required=False, allow_blank=False, allow_null=False)
     descr = serializers.CharField(required=False, allow_blank=True, allow_null=False)
-    pic_link = serializers.URLField(required=False, allow_blank=True, allow_null=False)
+    pic_id = serializers.IntegerField(min_value=1, allow_null=False, required=False, default=1)
     deleted_flg = serializers.BooleanField(required=False)
     created_dt = serializers.DateTimeField(read_only=True)
 
@@ -42,7 +42,7 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'descr',
-            'pic_link',
+            'pic_id',
             'deleted_flg',
             'created_dt'
         ]

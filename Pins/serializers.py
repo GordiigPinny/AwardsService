@@ -10,7 +10,7 @@ class PinsListSerializer(serializers.ModelSerializer):
     price = serializers.IntegerField(min_value=0, required=True)
     ptype = serializers.ChoiceField(choices=Pin.PIN_TYPE_CHOICES, required=True)
     descr = serializers.CharField(write_only=True, required=False, allow_blank=True, allow_null=False, default='')
-    pin_pic_link = serializers.URLField(required=False, allow_blank=True, allow_null=False, default='')
+    pic_id = serializers.IntegerField(min_value=1, allow_null=False, required=False, default=1)
     deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
@@ -18,7 +18,7 @@ class PinsListSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
-            'pin_pic_link',
+            'pic_id',
             'price',
             'ptype',
             'descr',
@@ -39,7 +39,7 @@ class PinDetailSerializer(serializers.ModelSerializer):
     created_dt = serializers.DateTimeField(read_only=True)
     ptype = serializers.CharField(read_only=True)
     descr = serializers.CharField(required=False, allow_blank=True, allow_null=False)
-    pin_pic_link = serializers.URLField(required=False, allow_blank=True, allow_null=False)
+    pic_id = serializers.IntegerField(min_value=1, allow_null=False, required=False, default=1)
     deleted_flg = serializers.BooleanField(required=False)
 
     class Meta:
@@ -48,7 +48,7 @@ class PinDetailSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'descr',
-            'pin_pic_link',
+            'pic_id',
             'price',
             'ptype',
             'created_dt',
