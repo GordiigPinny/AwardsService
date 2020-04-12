@@ -3,9 +3,10 @@ from rest_framework.pagination import LimitOffsetPagination
 from Pins.models import Pin
 from Pins.serializers import PinsListSerializer, PinDetailSerializer
 from AwardsService.permissions import WriteOnlyBySuperuser
+from ApiRequesters.Stats.decorators import collect_request_stats_decorator, CollectStatsMixin
 
 
-class PinListView(ListCreateAPIView):
+class PinListView(ListCreateAPIView, CollectStatsMixin):
     """
     Вьюха для возврата списка пинов
     """
@@ -23,8 +24,16 @@ class PinListView(ListCreateAPIView):
         else:
             return all_.filter(ptype=ptype)
 
+    @collect_request_stats_decorator()
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-class PinDetailView(RetrieveUpdateDestroyAPIView):
+    @collect_request_stats_decorator()
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class PinDetailView(RetrieveUpdateDestroyAPIView, CollectStatsMixin):
     """
     Вьюха для возврата пина
     """
@@ -36,6 +45,11 @@ class PinDetailView(RetrieveUpdateDestroyAPIView):
         with_deleted = with_deleted.lower() == 'true'
         return Pin.objects.with_deleted().all() if with_deleted else Pin.objects.all()
 
+    @collect_request_stats_decorator()
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @collect_request_stats_decorator()
     def update(self, request, *args, **kwargs):
         response = super().update(request, args, kwargs)
         if response.status_code == 200:
@@ -44,3 +58,7 @@ class PinDetailView(RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance: Pin):
         instance.soft_delete()
+
+    @collect_request_stats_decorator()
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
