@@ -3,9 +3,10 @@ from rest_framework.pagination import LimitOffsetPagination
 from Achievements.models import Achievement
 from Achievements.serializers import AchievementsListSerializer, AchievementDetailSerializer
 from AwardsService.permissions import WriteOnlyBySuperuser
+from ApiRequesters.Stats.decorators import collect_request_stats_decorator, CollectStatsMixin
 
 
-class AchievementsListView(ListCreateAPIView):
+class AchievementsListView(ListCreateAPIView, CollectStatsMixin):
     """
     Вьюха для спискового представления ачивок
     """
@@ -18,8 +19,16 @@ class AchievementsListView(ListCreateAPIView):
         with_deleted = with_deleted.lower() == 'true'
         return Achievement.objects.with_deleted().all() if with_deleted else Achievement.objects.all()
 
+    @collect_request_stats_decorator()
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-class AchievementDetailView(RetrieveUpdateDestroyAPIView):
+    @collect_request_stats_decorator()
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class AchievementDetailView(RetrieveUpdateDestroyAPIView, CollectStatsMixin):
     """
     Вьюха для детального представления ачивки
     """
@@ -31,6 +40,11 @@ class AchievementDetailView(RetrieveUpdateDestroyAPIView):
         with_deleted = with_deleted.lower() == 'true'
         return Achievement.objects.with_deleted().all() if with_deleted else Achievement.objects.all()
 
+    @collect_request_stats_decorator()
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @collect_request_stats_decorator()
     def update(self, request, *args, **kwargs):
         response = super().update(request, args, kwargs)
         if response.status_code == 200:
@@ -39,3 +53,7 @@ class AchievementDetailView(RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance: Achievement):
         instance.soft_delete()
+
+    @collect_request_stats_decorator()
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
