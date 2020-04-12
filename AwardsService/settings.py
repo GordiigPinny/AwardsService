@@ -147,3 +147,6 @@ try:
     from ApiRequesters.settings import *
 except ImportError as e:
     raise e
+
+APP_ID = ENV['AWARDS_APP_ID']
+APP_SECRET = ENV['AWARDS_SECRET']
