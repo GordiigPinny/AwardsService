@@ -152,3 +152,11 @@ APP_ID = ENV['AWARDS_APP_ID']
 APP_SECRET = ENV['AWARDS_SECRET']
 
 ALLOW_REQUESTS = True
+
+
+ON_HEROKU = not (os.getenv('ON_HEROKU', '0') == '0')
+
+if not DEBUG:
+    import django_heroku
+    django_heroku.settings(locals(), databases=ON_HEROKU, test_runner=False, secret_key=False)
+
