@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import sys
-import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -139,13 +137,26 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
 
-ENV_FILE_NAME = 'prod.env'
-
-TESTING = sys.argv[1:2] == ['test']
 
 try:
     from .settings_local import *
 except ImportError:
     pass
 
-ENV = dotenv.main.dotenv_values(ENV_FILE_NAME)
+try:
+    from ApiRequesters.settings import *
+except ImportError as e:
+    raise e
+
+APP_ID = ENV['AWARDS_APP_ID']
+APP_SECRET = ENV['AWARDS_SECRET']
+
+ALLOW_REQUESTS = True
+
+
+ON_HEROKU = not (os.getenv('ON_HEROKU', '0') == '0')
+
+if not DEBUG:
+    import django_heroku
+    django_heroku.settings(locals(), databases=ON_HEROKU, test_runner=False, secret_key=False)
+

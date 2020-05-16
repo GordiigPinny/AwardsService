@@ -28,32 +28,32 @@ class AchievementsListTestCase(LocalBaseTestCase):
         }
 
     def testGet200_Ok(self):
-        response = self.get_response_and_check_status(url=self.path, auth=False, token=self.user_token)
-        self.fields_test(response, ['id', 'name', 'pic_link'])
+        response = self.get_response_and_check_status(url=self.path)
+        self.fields_test(response, ['id', 'name', 'pic_id'])
         self.list_test(response, Achievement)
 
-    def testGet200_DeletedSuper(self):
+    def testGet200_Deleted(self):
         achd = Achievement.objects.create(name='Name', descr='descr', deleted_flg=True)
-        response = self.get_response_and_check_status(url=self.path+'?show_deleted=True', auth=False,
-                                                      token=self.super_token)
+        response = self.get_response_and_check_status(url=self.path+'?with_deleted=True')
         self.assertEqual(len(response), 2, msg='Deleted instances are not in response')
 
-    def testGet200_DeletedNoSuper(self):
-        achd = Achievement.objects.create(name='Name', descr='descr', deleted_flg=True)
-        response = self.get_response_and_check_status(url=self.path + '?show_deleted=True', auth=False,
-                                                      token=self.user_token)
-        self.assertEqual(len(response), 1, msg='Deleted instances are in response')
-
     def testPost201_Ok(self):
-        _ = self.post_response_and_check_status(url=self.path, data=self.data_201, auth=False, token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        _ = self.post_response_and_check_status(url=self.path, data=self.data_201)
 
-    def testPost403_NoSuper(self):
-        _ = self.post_response_and_check_status(url=self.path, data=self.data_201, expected_status_code=403,
-                                                auth=False, token=self.user_token)
+    def testPost201_ErrorOnMedia(self):
+        self.data_201['pic_id'] = 100
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        self.token.set_error(self.token.ERRORS_KEYS.MEDIA, self.token.ERRORS.ERROR_TOKEN)
+        response = self.post_response_and_check_status(url=self.path, data=self.data_201)
+        self.assertEqual(response['pic_id'], 1, msg='Wrong default pic_id value returned')
+
+    def testPost401_403_NotAdminPosting(self):
+        _ = self.post_response_and_check_status(url=self.path, data=self.data_201, expected_status_code=[401, 403])
 
     def testPost400_WrongJSON(self):
-        _ = self.post_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400,
-                                                auth=False, token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        _ = self.post_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400)
 
 
 class AchievementDetailTestCase(LocalBaseTestCase):
@@ -69,52 +69,55 @@ class AchievementDetailTestCase(LocalBaseTestCase):
             'name': 'PATCH',
         }
         self.data_400 = {
-
+            'name': None,
         }
 
     def testGet200_Ok(self):
-        response = self.get_response_and_check_status(url=self.path, auth=False, token=self.user_token)
-        self.fields_test(response, ['id', 'name', 'descr', 'pic_link', 'created_dt'])
+        response = self.get_response_and_check_status(url=self.path)
+        self.fields_test(response, ['id', 'name', 'descr', 'pic_id', 'created_dt'])
 
-    def testGet200_DeletedSuperuser(self):
+    def testGet200_Deleted(self):
         achd = Achievement.objects.create(name='Name', descr='descr', deleted_flg=True)
-        _ = self.get_response_and_check_status(url=self.old_path+f'{achd.id}/', auth=False,
-                                               token=self.super_token)
+        _ = self.get_response_and_check_status(url=self.old_path+f'{achd.id}/?with_deleted=True')
 
-    def testGet404_DeletedNoSuper(self):
+    def testGet404_DeletedNoQueryparam(self):
         achd = Achievement.objects.create(name='Name', descr='descr', deleted_flg=True)
-        _ = self.get_response_and_check_status(url=self.old_path+f'{achd.id}/', expected_status_code=404,
-                                               auth=False, token=self.user_token)
+        _ = self.get_response_and_check_status(url=self.old_path+f'{achd.id}/', expected_status_code=404)
 
     def testGet404_WrongId(self):
-        _ = self.get_response_and_check_status(url=self.path_404, expected_status_code=404, auth=False,
-                                               token=self.user_token)
+        _ = self.get_response_and_check_status(url=self.path_404, expected_status_code=404)
 
     def testPatch202_Ok(self):
-        response = self.patch_response_and_check_status(url=self.path, data=self.data_202, auth=False,
-                                                        token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        response = self.patch_response_and_check_status(url=self.path, data=self.data_202)
         self.assertEqual(response['id'], self.ach.id, msg='Wrong id')
         self.assertEqual(response['name'], self.data_202['name'], msg='Wrong name')
 
-    def testPatch403_NoSuperuser(self):
-        _ = self.patch_response_and_check_status(url=self.path, data=self.data_202, expected_status_code=403,
-                                                 auth=False, token=self.user_token)
+    def testPatch202_ErrorOnMedia(self):
+        self.data_202['pic_id'] = 100
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        self.token.set_error(self.token.ERRORS_KEYS.MEDIA, self.token.ERRORS.ERROR_TOKEN)
+        response = self.patch_response_and_check_status(url=self.path, data=self.data_202)
+        self.assertEqual(response['pic_id'], 1, msg='Wrong default pic_id value returned')
+
+    def testPatch401_403_NotAdminPatching(self):
+        _ = self.patch_response_and_check_status(url=self.path, data=self.data_202, expected_status_code=[401, 403])
 
     def testPatch400_WrongJSON(self):
-        _ = self.patch_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400,
-                                                 auth=False, token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        _ = self.patch_response_and_check_status(url=self.path, data=self.data_400, expected_status_code=400)
 
     def testPatch404_WrongId(self):
-        _ = self.patch_response_and_check_status(url=self.path_404, data=self.data_202, expected_status_code=404,
-                                                 auth=False, token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        _ = self.patch_response_and_check_status(url=self.path_404, data=self.data_202, expected_status_code=404)
 
     def testDelete204_Ok(self):
-        _ = self.delete_response_and_check_status(url=self.path, auth=False, token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        _ = self.delete_response_and_check_status(url=self.path)
 
-    def testDelete403_NoSuper(self):
-        _ = self.delete_response_and_check_status(url=self.path, expected_status_code=403, auth=False,
-                                                  token=self.user_token)
+    def testDelete401_403_NotAdminDeleting(self):
+        _ = self.delete_response_and_check_status(url=self.path, expected_status_code=[401, 403])
 
     def testDelete404_WrongId(self):
-        _ = self.delete_response_and_check_status(url=self.path_404, expected_status_code=404, auth=False,
-                                                  token=self.super_token)
+        self.token.set_role(self.token.ROLES.SUPERUSER)
+        _ = self.delete_response_and_check_status(url=self.path_404, expected_status_code=404)
